@@ -1,5 +1,6 @@
 package com.example.pokedex
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -21,11 +22,14 @@ class PokemonListAdapter(
             binding.tvNamapokemon.text = resultsItem.name
 
             binding.tvNamapokemon.setOnClickListener{
+                val position = adapterPosition
                 val bundle = Bundle()
-                bundle.putString("",resultsItem.name)
+                bundle.putString("url",resultsItem.url)
+                bundle.putInt("no",position)
+                binding.root.context.startActivity(Intent(binding.root.context, DetailPokeActivity::class.java)
+                    .putExtras(bundle))
             }
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PokemonListViewHolder {

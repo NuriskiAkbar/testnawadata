@@ -33,9 +33,63 @@ class DashboardActivity : AppCompatActivity() {
 
         viewBinding.rvListpokemon.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         viewBinding.rvListpokemon.setHasFixedSize(true)
+
         getAllPokemon{ pokemon: MutableList<ResultsItem> ->
-            val adapter = PokemonListAdapter(pokemon)
-            viewBinding.rvListpokemon.adapter =  adapter
+
+            val db = DBHelper(this, null)
+            for (poke in pokemon){
+                db.addPoke(poke.name!!, poke.url!!)
+            }
+
+            val cursor = db.getPoke()
+            val pokemonList = mutableListOf<ResultsItem>()
+
+            if (cursor != null && cursor.moveToFirst()) {
+                val namesIndex = cursor.getColumnIndex("name")
+                val urlsIndex = cursor.getColumnIndex("url")
+                do {
+                    val name = cursor.getString(namesIndex)
+                    val url = cursor.getString(urlsIndex)
+                    val pokemon = ResultsItem(name, url)
+                    pokemonList.add(pokemon)
+                } while (cursor.moveToNext())
+            }
+            cursor?.close()
+
+            val adapter = PokemonListAdapter(pokemonList)
+            viewBinding.rvListpokemon.adapter = adapter
+
+            db.close()
+        }
+
+        viewBinding.btnLoadmore.setOnClickListener {
+            getAllMorePokemon { pokemon: MutableList<ResultsItem> ->
+
+                val db = DBHelper(this, null)
+                for (poke in pokemon){
+                    db.addPoke(poke.name!!, poke.url!!)
+                }
+
+                val cursor = db.getPoke()
+                val pokemonList = mutableListOf<ResultsItem>()
+
+                if (cursor != null && cursor.moveToFirst()) {
+                    val namesIndex = cursor.getColumnIndex("name")
+                    val urlsIndex = cursor.getColumnIndex("url")
+                    do {
+                        val name = cursor.getString(namesIndex)
+                        val url = cursor.getString(urlsIndex)
+                        val pokemon = ResultsItem(name, url)
+                        pokemonList.add(pokemon)
+                    } while (cursor.moveToNext())
+                }
+                cursor?.close()
+
+                val adapter = PokemonListAdapter(pokemonList)
+                viewBinding.rvListpokemon.adapter = adapter
+
+                db.close()
+            }
         }
     }
 
